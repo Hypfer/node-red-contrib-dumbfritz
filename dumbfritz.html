@@ -1,0 +1,36 @@
+<script type="text/javascript">
+    RED.nodes.registerType('dumbfritz',{
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:"", required: true},
+            url: {value: "", required: true},
+            aid: {value: "", required: true}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"dumbfritz";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="dumbfritz">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="icon-tag"></i> URL</label>
+        <input type="text" id="node-input-url" placeholder="127.0.0.1">
+    </div>
+    <div class="form-row">
+        <label for="node-input-aid"><i class="icon-tag"></i> AID</label>
+        <input type="text" id="node-input-aid" placeholder="00:00:00:00:00:00">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="dumbfritz">
+    <p>Foo</p>
+</script>
