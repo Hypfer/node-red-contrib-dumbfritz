@@ -16,7 +16,7 @@ module.exports = function(RED) {
         node.on('input', function(msg) {
             fritz.getSwitchPower(session, config.aid, function(milliwatts){ //TODO: Error handling
                 node.send({payload: {name: config.name, watt: parseInt(milliwatts)}});
-            });
+            }, {url: config.url});
         });
     }
 
