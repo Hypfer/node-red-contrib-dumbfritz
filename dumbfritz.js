@@ -7,16 +7,31 @@ module.exports = function(RED) {
 
         var session;
 
-        fritz.getSessionID("user", "", function(sid){
-            session = sid;
-            node.log('Session ID: ' + sid);
-        }, {url: config.url});
+        function getToken() {
+            try {
+                fritz.getSessionID("user", "", function(sid){
+                    session = sid;
+                    node.log('Session ID: ' + sid);
+                }, {url: config.url});
+            } catch (e) {
+                node.error("Error:", e);
+                setTimeout(getToken, 5000);
+            }
+        }
+
 
 
         node.on('input', function(msg) {
-            fritz.getSwitchPower(session, config.aid, function(milliwatts){ //TODO: Error handling
-                node.send({payload: {name: config.name, watt: parseInt(milliwatts)}});
-            }, {url: config.url});
+            if(session !== undefined) {
+                try {
+                    fritz.getSwitchPower(session, config.aid, function(milliwatts){ //TODO: Error handling
+                        node.send({payload: {name: config.name, watt: parseInt(milliwatts)}});
+                    }, {url: config.url});
+                } catch (e) {
+                    node.error("Error:", e);
+                }
+            }
+
         });
     }
 
