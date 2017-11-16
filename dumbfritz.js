@@ -19,12 +19,12 @@ module.exports = function(RED) {
             }
         }
 
-
+        getToken();
 
         node.on('input', function(msg) {
             if(session !== undefined) {
                 try {
-                    fritz.getSwitchPower(session, config.aid, function(milliwatts){ //TODO: Error handling
+                    fritz.getSwitchPower(session, config.aid, function(milliwatts){
                         node.send({payload: {name: config.name, watt: parseInt(milliwatts)}});
                     }, {url: config.url});
                 } catch (e) {
