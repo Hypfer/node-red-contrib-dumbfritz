@@ -36,7 +36,7 @@ module.exports = function(RED) {
                                 setTimeout(getToken, 5000);
                             }).end();
                         } else {
-                            node.error("Error:", challenge);
+                            node.error("Error:", str);
                             setTimeout(getToken, 5000);
                         }
 
@@ -63,8 +63,7 @@ module.exports = function(RED) {
                         data += chunk;
                     });
                     response.on('end', function () {
-                        var energy = 'OK';
-                        energy = data.trim();
+                        var energy = data.trim();
                         node.send({payload: {name: config.name, watt: parseInt(energy)}});
                     });
                 }).on("error", function(e){
