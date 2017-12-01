@@ -29,7 +29,7 @@ module.exports = function(RED) {
                                 response.on('end', function () {
                                     sessionID = str.match("<SID>(.*?)</SID>")[1];
                                     session = sessionID;
-                                    node.log('Session ID: ' + sid);
+                                    node.log('Session ID: ' + session);
                                 })
                             }).on("error", function(e){
                                 node.error("Error:", e);
