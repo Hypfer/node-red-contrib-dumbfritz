@@ -17,21 +17,30 @@ module.exports = function(RED) {
                     });
 
                     response.on('end', function () {
-                        var challenge = str.match("<Challenge>(.*?)</Challenge>")[1];
-                        http.request({host:config.url, path:"/login_sid.lua?username=" + username + "&response="+challenge+"-" + require('crypto').createHash('md5').update(Buffer(challenge+'-'+password, 'UTF-16LE')).digest('hex')},function(response){
-                            var str = '';
-                            response.on('data', function (chunk) {
-                                str += chunk;
-                            });
-                            response.on('end', function () {
-                                sessionID = str.match("<SID>(.*?)</SID>")[1];
-                                session = sessionID;
-                                node.log('Session ID: ' + sid);
-                            })
-                        }).on("error", function(e){
-                            node.error("Error:", e);
+                        var challenge = str.match("<Challenge>(.*?)</Challenge>");
+                        if(Array.isArray(challenge)) {
+                            challenge = challenge[0];
+
+                            http.request({host:config.url, path:"/login_sid.lua?username=&response="+challenge+"-" + require('crypto').createHash('md5').update(Buffer(challenge+'-'+password, 'UTF-16LE')).digest('hex')},function(response){
+                                var str = '';
+                                response.on('data', function (chunk) {
+                                    str += chunk;
+                                });
+                                response.on('end', function () {
+                                    sessionID = str.match("<SID>(.*?)</SID>")[1];
+                                    session = sessionID;
+                                    node.log('Session ID: ' + sid);
+                                })
+                            }).on("error", function(e){
+                                node.error("Error:", e);
+                                setTimeout(getToken, 5000);
+                            }).end();
+                        } else {
+                            node.error("Error:", challenge);
                             setTimeout(getToken, 5000);
-                        }).end();
+                        }
+
+
                     });
                 }).on("error", function(e){
                     node.error("Error:", e);
