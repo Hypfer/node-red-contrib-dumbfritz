@@ -1,4 +1,4 @@
-var fritz = require('smartfritz');
+var http = require("http");
 
 module.exports = function(RED) {
     function DumbFritzNode(config) {
@@ -8,11 +8,35 @@ module.exports = function(RED) {
         var session;
 
         function getToken() {
+            var sessionID = "";
             try {
-                fritz.getSessionID("user", "", function(sid){
-                    session = sid;
-                    node.log('Session ID: ' + sid);
-                }, {url: config.url});
+                http.request({host:config.url, path:'/login_sid.lua'}, function(response) {
+                    var str = '';
+                    response.on('data', function (chunk) {
+                        str += chunk;
+                    });
+
+                    response.on('end', function () {
+                        var challenge = str.match("<Challenge>(.*?)</Challenge>")[1];
+                        http.request({host:config.url, path:"/login_sid.lua?username=" + username + "&response="+challenge+"-" + require('crypto').createHash('md5').update(Buffer(challenge+'-'+password, 'UTF-16LE')).digest('hex')},function(response){
+                            var str = '';
+                            response.on('data', function (chunk) {
+                                str += chunk;
+                            });
+                            response.on('end', function () {
+                                sessionID = str.match("<SID>(.*?)</SID>")[1];
+                                session = sessionID;
+                                node.log('Session ID: ' + sid);
+                            })
+                        }).on("error", function(e){
+                            node.error("Error:", e);
+                            setTimeout(getToken, 5000);
+                        }).end();
+                    });
+                }).on("error", function(e){
+                    node.error("Error:", e);
+                    setTimeout(getToken, 5000);
+                }).end();
             } catch (e) {
                 node.error("Error:", e);
                 setTimeout(getToken, 5000);
@@ -23,13 +47,22 @@ module.exports = function(RED) {
 
         node.on('input', function(msg) {
             if(session !== undefined) {
-                try {
-                    fritz.getSwitchPower(session, config.aid, function(milliwatts){
-                        node.send({payload: {name: config.name, watt: parseInt(milliwatts)}});
-                    }, {url: config.url});
-                } catch (e) {
+                http.request({host:config.url, path:'/webservices/homeautoswitch.lua?sid='+session+'&switchcmd=getswitchpower&ain='+config.aid},function(response){
+                    var data = '';
+
+                    response.on('data', function (chunk) {
+                        data += chunk;
+                    });
+                    response.on('end', function () {
+                        var energy = 'OK';
+                        energy = data.trim();
+                        node.send({payload: {name: config.name, watt: parseInt(energy)}});
+                    });
+                }).on("error", function(e){
                     node.error("Error:", e);
-                }
+                }).end();
+            } else {
+                node.error("Error:", "Missing SID");
             }
 
         });
