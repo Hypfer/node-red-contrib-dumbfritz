@@ -19,7 +19,7 @@ module.exports = function(RED) {
                     response.on('end', function () {
                         var challenge = str.match("<Challenge>(.*?)</Challenge>");
                         if(Array.isArray(challenge)) {
-                            challenge = challenge[0];
+                            challenge = challenge[1];
 
                             var challengeResponse = challenge +'-'+  require('crypto').createHash('md5').update(Buffer.from(challenge+"-"+config.password,"utf16le")).digest('hex');
 
