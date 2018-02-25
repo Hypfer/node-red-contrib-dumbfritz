@@ -5,7 +5,9 @@
         defaults: {
             name: {value:"", required: true},
             url: {value: "", required: true},
-            aid: {value: "", required: true}
+            aid: {value: "", required: true},
+            user: {value: "", required: false},
+            password: {value: "", required: false}
         },
         inputs:1,
         outputs:1,
@@ -28,6 +30,14 @@
     <div class="form-row">
         <label for="node-input-aid"><i class="icon-tag"></i> AID</label>
         <input type="text" id="node-input-aid" placeholder="00:00:00:00:00:00">
+    </div>
+    <div class="form-row">
+        <label for="node-input-user"><i class="icon-tag"></i> user</label>
+        <input type="text" id="node-input-user" placeholder="user">
+    </div>
+    <div class="form-row">
+        <label for="node-input-password"><i class="icon-tag"></i> password</label>
+        <input type="text" id="node-input-password" placeholder="password">
     </div>
 </script>
 
