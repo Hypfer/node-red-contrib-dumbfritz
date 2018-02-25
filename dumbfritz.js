@@ -21,7 +21,10 @@ module.exports = function(RED) {
                         if(Array.isArray(challenge)) {
                             challenge = challenge[0];
 
-                            http.request({host:config.url, path:"/login_sid.lua?username="+config.user+"&response="+challenge+"-" + require('crypto').createHash('md5').update(new Buffer(challenge+'-'+config.password, 'UTF-16LE')).digest('hex')},function(response){
+                            var challengeResponse = challenge +'-'+  require('crypto').createHash('md5').update(Buffer.from(challenge+"-"+config.password,"utf16le")).digest('hex');
+
+
+                            http.request({host:config.url, path:"/login_sid.lua?username="+config.user+"&response=" + challengeResponse},function(response){
                                 var str = '';
                                 response.on('data', function (chunk) {
                                     str += chunk;
