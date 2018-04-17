@@ -66,8 +66,22 @@ module.exports = function(RED) {
                         data += chunk;
                     });
                     response.on('end', function () {
-                        var energy = data.trim();
-                        node.send({payload: {name: config.name, watt: parseInt(energy)}});
+                        var power = data.trim();
+
+                        http.request({host:config.url, path:'/webservices/homeautoswitch.lua?sid='+session+'&switchcmd=getswitchenergy&ain='+config.aid},function(response){
+                            var data = '';
+
+                            response.on('data', function (chunk) {
+                                data += chunk;
+                            });
+                            response.on('end', function () {
+                                var energy = data.trim();
+
+                                node.send({payload: {name: config.name, watt: parseInt(power), wh: parseInt(energy)}});
+                            });
+                        }).on("error", function(e){
+                            node.error("Error:", e);
+                        }).end();
                     });
                 }).on("error", function(e){
                     node.error("Error:", e);
